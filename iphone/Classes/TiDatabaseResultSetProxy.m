@@ -248,6 +248,34 @@
 	return [self validRow];
 }
 
+-(NSDictionary *)dictionaryFromCurrentField
+{
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    for(NSString *field in [results fieldNames])
+    {
+	    id result = [results objectForColumn:field];
+		if ([result isKindOfClass:[NSData class]]) {
+			result = [[[TiBlob alloc] initWithData:result mimetype:@"application/octet-stream"] autorelease];
+		}
+        [dict setObject:result forKey:field];
+    }
+    return dict;
+}
+
+-(id)fetchAllAsJSON:(id)args
+{
+    NSMutableArray *ar = [NSMutableArray array];
+    if (results != nil && validRow)
+    {
+        [ar addObject:[self dictionaryFromCurrentField]];
+        while([results next])
+        {
+            [ar addObject:[self dictionaryFromCurrentField]];
+        }
+    }
+    return ar;
+}
+
 @end
 
 #endif
